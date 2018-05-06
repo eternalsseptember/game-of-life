@@ -1,0 +1,9 @@
+C:\Users\user\source\repos\ConwayGameOfLife\ConwayGameOfLife\bin\Debug\ConwayGameOfLife.exe.config
+C:\Users\user\source\repos\ConwayGameOfLife\ConwayGameOfLife\bin\Debug\ConwayGameOfLife.exe
+C:\Users\user\source\repos\ConwayGameOfLife\ConwayGameOfLife\bin\Debug\ConwayGameOfLife.pdb
+C:\Users\user\source\repos\ConwayGameOfLife\ConwayGameOfLife\obj\Debug\ConwayGameOfLife.Properties.Resources.resources
+C:\Users\user\source\repos\ConwayGameOfLife\ConwayGameOfLife\obj\Debug\ConwayGameOfLife.csproj.GenerateResource.cache
+C:\Users\user\source\repos\ConwayGameOfLife\ConwayGameOfLife\obj\Debug\ConwayGameOfLife.csproj.CoreCompileInputs.cache
+C:\Users\user\source\repos\ConwayGameOfLife\ConwayGameOfLife\obj\Debug\ConwayGameOfLife.exe
+C:\Users\user\source\repos\ConwayGameOfLife\ConwayGameOfLife\obj\Debug\ConwayGameOfLife.pdb
+C:\Users\user\source\repos\ConwayGameOfLife\ConwayGameOfLife\obj\Debug\ConwayGameOfLife.LifeForm.resources
