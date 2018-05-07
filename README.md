@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-=======
 # Conway's Game of Life WinForms application
 
 Cell - тип, определяющий одну клетку
