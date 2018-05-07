@@ -1,5 +1,4 @@
-# game-of-life
-Conway's Game of Life WinForms application
+# Conway's Game of Life WinForms application
 
 Cell - тип, определяющий одну клетку
 Grid - тип, определяющий сетку из клеток
