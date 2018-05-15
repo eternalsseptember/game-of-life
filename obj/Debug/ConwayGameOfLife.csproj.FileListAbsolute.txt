@@ -7,3 +7,4 @@ C:\Users\user\source\repos\ConwayGameOfLife\ConwayGameOfLife\obj\Debug\ConwayGam
 C:\Users\user\source\repos\ConwayGameOfLife\ConwayGameOfLife\obj\Debug\ConwayGameOfLife.exe
 C:\Users\user\source\repos\ConwayGameOfLife\ConwayGameOfLife\obj\Debug\ConwayGameOfLife.pdb
 C:\Users\user\source\repos\ConwayGameOfLife\ConwayGameOfLife\obj\Debug\ConwayGameOfLife.LifeForm.resources
+C:\Users\user\source\repos\ConwayGameofLife\ConwayGameOfLife\obj\Debug\ConwayGameOfLife.csprojResolveAssemblyReference.cache

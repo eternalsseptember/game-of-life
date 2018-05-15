@@ -195,10 +195,12 @@ namespace ConwayGameOfLife
 
         private void ResetBtnClick(object sender, EventArgs e)
         {
+            LifeGrid = null;
             gameTimer.Stop();
             CleanGrid();
             genLabel.Text = "0";
             popLabel.Text = "0";
+            LifeGrid = new Grid(gamePanel.Width, gamePanel.Height, CellSize);
             LifeGrid.CreateEmptyGrid();
             DrawGrid();
             GameOverDisableControls();
