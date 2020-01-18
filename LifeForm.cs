@@ -7,7 +7,7 @@ namespace ConwayGameOfLife
     public partial class LifeForm : Form
     {
         private int CountCells { get; set; }
-        private int CellSize { get; set; } = 5;
+        private int CellSize { get; } = 5;
 
         private Grid LifeGrid { get; set; }
         private Bitmap LifeBitmap { get; set; }
@@ -17,10 +17,9 @@ namespace ConwayGameOfLife
         private Graphics BitmapGraphics { get; set; }
 
         private byte[,] CurrentPattern { get; set; } = Patterns.OneCell;
-        private byte CurrTimerState { get; set; } = 0;
+        private TimerState CurrentTimerState { get; set; } = 0;
 
-
-        private enum TimerState : byte
+        private enum TimerState
         {
             On = 1,
             Off = 0
@@ -41,7 +40,7 @@ namespace ConwayGameOfLife
             LifeGrid.CreateEmptyGrid();
         }
 
-        private void CleanGrid()
+        private void ClearGrid()
         {
             CountCells = 0;
             LifeBitmap = new Bitmap(gamePanel.Width, gamePanel.Height);
@@ -55,7 +54,7 @@ namespace ConwayGameOfLife
             {
                 for (int y = 0; y < LifeGrid.Height; y++)
                 {
-                    if (LifeGrid.Cells[x, y].IsAlive == 1)
+                    if (LifeGrid.Cells[x, y].IsAlive)
                     {
                         BitmapGraphics.FillRectangle(BrushCell, x * CellSize, y * CellSize, CellSize, CellSize);
                         CountCells++;
@@ -68,9 +67,9 @@ namespace ConwayGameOfLife
         private void NewGameClick(object sender, EventArgs e)
         {
 
-            StartedGameEnableControls();
+            StartGameEnableControls();
             gameTimer.Start();
-            CurrTimerState = (byte)(TimerState.On);
+            CurrentTimerState = TimerState.On;
         }
 
         private void TimerTick(object sender, EventArgs e)
@@ -78,28 +77,30 @@ namespace ConwayGameOfLife
             // Если сетка повторилась
             if (!LifeGrid.NextStepGridUpdate())
             {
-                GameOverDisableControls();
+                DisableControlsWhenGameOver();
                 gameTimer.Stop();
-                CurrTimerState = (byte)(TimerState.Off);
-                CleanGrid();
+                CurrentTimerState = TimerState.Off;
+                ClearGrid();
                 LifeGrid.CreateEmptyGrid();
                 DrawGrid();
                 return;
             }
-            CleanGrid();
+
+            ClearGrid();
             DrawGrid();
             genLabel.Text = LifeGrid.Generations.ToString();
             popLabel.Text = CountCells.ToString();
+
             // Если не осталось живых ячеек
             if (CountCells == 0)
             {
-                GameOverDisableControls();
+                DisableControlsWhenGameOver();
                 gameTimer.Stop();
-                CurrTimerState = (byte)(TimerState.Off);
+                CurrentTimerState = TimerState.Off;
             }
         }
 
-        private void StartedGameEnableControls()
+        private void StartGameEnableControls()
         {
             nextBtn.Enabled = true;
             pauseBtn.Enabled = true;
@@ -109,7 +110,7 @@ namespace ConwayGameOfLife
             newGameBtn.Enabled = false;
         }
 
-        private void GameOverDisableControls()
+        private void DisableControlsWhenGameOver()
         {
             nextBtn.Enabled = false;
             pauseBtn.Enabled = false;
@@ -154,8 +155,8 @@ namespace ConwayGameOfLife
                         CurrentPattern = Patterns.OneCell;
                         break;
                 }
-                LifeGrid.SetCellsIntoDrawPanel(e.X, e.Y, CurrentPattern);
-                CleanGrid();
+                LifeGrid.DrawPatternOnCells(e.X, e.Y, CurrentPattern);
+                ClearGrid();
                 DrawGrid();
             }
             popLabel.Text = CountCells.ToString();
@@ -163,15 +164,15 @@ namespace ConwayGameOfLife
 
         private void PauseClick(object sender, EventArgs e)
         {
-            if (CurrTimerState == 1)
+            if (CurrentTimerState == TimerState.On)
             {
                 gameTimer.Stop();
-                CurrTimerState = (byte)(TimerState.Off);
+                CurrentTimerState = TimerState.Off;
             }
             else
             {
                 gameTimer.Start();
-                CurrTimerState = (byte)(TimerState.On);
+                CurrentTimerState = TimerState.On;
             }
         }
 
@@ -180,14 +181,14 @@ namespace ConwayGameOfLife
             // Если сетка повторилась
             if (!LifeGrid.NextStepGridUpdate())
             {
-                GameOverDisableControls();
-                CurrTimerState = (byte)(TimerState.Off);
-                CleanGrid();
+                DisableControlsWhenGameOver();
+                CurrentTimerState = TimerState.Off;
+                ClearGrid();
                 LifeGrid.CreateEmptyGrid();
                 DrawGrid();
                 return;
             }
-            CleanGrid();
+            ClearGrid();
             DrawGrid();
             genLabel.Text = LifeGrid.Generations.ToString();
             popLabel.Text = CountCells.ToString();
@@ -197,31 +198,30 @@ namespace ConwayGameOfLife
         {
             LifeGrid = null;
             gameTimer.Stop();
-            CleanGrid();
+            ClearGrid();
             genLabel.Text = "0";
             popLabel.Text = "0";
             LifeGrid = new Grid(gamePanel.Width, gamePanel.Height, CellSize);
             LifeGrid.CreateEmptyGrid();
             DrawGrid();
-            GameOverDisableControls();
+            DisableControlsWhenGameOver();
         }
 
         private void RandomPatternClick(object sender, EventArgs e)
         {
             LifeGrid.RandomPatternGrid();
-            StartedGameEnableControls();
+            StartGameEnableControls();
             gameTimer.Start();
-            CurrTimerState = (byte)(TimerState.On);
+            CurrentTimerState = TimerState.On;
         }
 
         private void PrevStepBtnClick(object sender, EventArgs e)
         {
             LifeGrid.PrevStepGridUpdate();
-            CleanGrid();
+            ClearGrid();
             DrawGrid();
             genLabel.Text = LifeGrid.Generations.ToString();
             popLabel.Text = CountCells.ToString();
-
         }
     }
 }

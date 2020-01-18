@@ -5,74 +5,92 @@ namespace ConwayGameOfLife
 {
     class Grid
     {
-        private int CellSize { get; set; }
         public Cell[,] Cells;
-        public int Generations { get; private set; } = 0;
-        public int Width { get; private set; }
-        public int Height { get; private set; }
 
-        private List<Cell[,]> History { get; set; }
+        public int Generations { get; private set; }
+
+        public int Width { get; }
+
+        public int Height { get; }
+
+        private readonly int _cellSize;
+
+		private readonly List<Cell[,]> _history;
+
+		/// <summary>
+		/// Конструктор 
+		/// </summary>
+		/// <param name="width">Ширина 'сетки'</param>
+		/// <param name="height">Высота 'сетки'</param>
+		/// <param name="cellSize">Размер клетки</param>
+		public Grid(int width, int height, int cellSize)
+		{
+            Cells = new Cell[width / cellSize, height / cellSize];
+            Width = width / cellSize;
+            Height = height / cellSize;
+
+            _cellSize = cellSize;
+            _history = new List<Cell[,]>();
+		}
 
         /// <summary>
-        /// Конструктор 
-        /// </summary>
-        /// <param name="width">Ширина 'сетки'</param>
-        /// <param name="height">Высота 'сетки'</param>
-        public Grid(int width, int height, int cellSize)
-        {
-            this.CellSize = cellSize;
-            this.Cells = new Cell[width / CellSize, height / CellSize];
-            this.Width = width / CellSize;
-            this.Height = height / CellSize;
-            this.History = new List<Cell[,]>();
-        }
-
-        /// <summary>
-        /// Обновление 'сетки' на 1 шаг вперёд
+        /// Обновление сетки на 1 шаг вперёд
         /// </summary>
         public bool NextStepGridUpdate()
         {
-            foreach (Cell[,] h in History)
-            {
-                if (CustomEquals(h, Cells))
-                {
-                    return false;
-                }
-            }
+	        if (IsGridRepeated())
+	        {
+		        return false;
+			}
 
-            Cell[,] TempForHistory = CopyCells(Cells);
-            History.Add(TempForHistory);
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    GetNeighbors(x, y);
-                }
-            }
+			_history.Add(CopyCells(Cells));
 
             for (int x = 0; x < Width; x++)
             {
                 for (int y = 0; y < Height; y++)
                 {
-                    Cells[x, y].IsAlive = Convert.ToByte(GetState(x, y));
+                    UpdateNeighbors(x, y);
+                }
+            }
+
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    Cells[x, y].UpdateState();
                 }
             }
             Generations++;
             return true;
         }
 
+        private bool IsGridRepeated()
+        {
+	        foreach (var h in _history)
+	        {
+		        if (CellGridEquals(h, Cells))
+		        {
+			        return true;
+		        }
+	        }
+
+	        return false;
+        }
+
         /// <summary>
-        /// Сравнение двух массивов
+        /// Сравнение двух массивов клеток
         /// </summary>
-        public bool CustomEquals(Cell[,] cells1, Cell[,] cells2)
+        public bool CellGridEquals(Cell[,] cells1, Cell[,] cells2)
         {
             for (int i = 0; i < Width; i++)
             {
                 for (int j = 0; j < Height; j++)
                 {
-                    if (cells1[i, j].IsAlive != cells2[i, j].IsAlive)
-                        return false;
-                }
+	                if (cells1[i, j].IsAlive != cells2[i, j].IsAlive)
+	                {
+		                return false;
+					}
+				}
             }
             return true;
         }
@@ -80,19 +98,17 @@ namespace ConwayGameOfLife
         /// <summary>
         /// Создание копии сетки
         /// </summary>
-        /// <param name="RefGrid">Сетка, которую нужно скопировать</param>
-        /// <returns></returns>
-        private Cell[,] CopyCells(Cell[,] RefGrid)
+        private Cell[,] CopyCells(Cell[,] cells)
         {
-            Cell[,] TempGrid = new Cell[Width, Height];
+            var copiedCells = new Cell[Width, Height];
             for (int i = 0; i < Width; i++)
             {
                 for (int j = 0; j < Height; j++)
                 {
-                    TempGrid[i, j] = new Cell(RefGrid[i, j].IsAlive);
+                    copiedCells[i, j] = new Cell(cells[i, j].IsAlive);
                 }
             }
-            return TempGrid;
+            return copiedCells;
         }
 
         /// <summary>
@@ -100,11 +116,11 @@ namespace ConwayGameOfLife
         /// </summary>
         public void PrevStepGridUpdate()
         {
-            int i = History.Count - 1;
+            int i = _history.Count - 1;
             if (i >= 0)
             {
-                Cells = History[i];
-                History.RemoveAt(i);
+                Cells = _history[i];
+                _history.RemoveAt(i);
                 Generations--;
             }
         }
@@ -114,13 +130,13 @@ namespace ConwayGameOfLife
         /// </summary>
         public void RandomPatternGrid()
         {
-            Random rnd = new Random();
+            var rnd = new Random();
             for (int i = 0; i < Cells.GetLength(0); i++)
             {
                 for (int j = 0; j < Cells.GetLength(1); j++)
                 {
-                    byte rNum = Convert.ToByte(rnd.Next(0, 2));
-                    Cells[i, j] = new Cell(rNum);
+                    var isAlive = Convert.ToBoolean(rnd.Next(0, 2));
+                    Cells[i, j] = new Cell(isAlive);
                 }
             }
         }
@@ -134,28 +150,26 @@ namespace ConwayGameOfLife
             {
                 for (int j = 0; j < Height; j++)
                 {
-                    Cells[i, j] = new Cell(0);
+                    Cells[i, j] = new Cell(false);
                 }
             }
         }
 
         /// <summary>
-        /// Проверка индексов массива
+        /// Проверка на то, что индекс внутри массива
         /// </summary>
-        private bool CheckOutOfRange(int x, int y)
+        private bool IsInBoundaries(int x, int y)
         {
-            if (y < Height && x < Width && x >= 0 && y >= 0)
-                return true;
-            return false;
+	        return y < Height && x < Width && x >= 0 && y >= 0;
         }
 
         /// <summary>
         /// Подсчет живых соседей у клетки и запись количества
         /// соседей в свойство CountNeighbors
         /// </summary>
-        private void GetNeighbors(int x, int y)
+        private void UpdateNeighbors(int x, int y)
         {
-            byte count = 0;
+            var count = 0;
             for (int i = x - 1; i < x + 2; i++)
             {
                 for (int j = y - 1; j < y + 2; j++)
@@ -164,51 +178,37 @@ namespace ConwayGameOfLife
                     {
                         continue;
                     }
-                    if (CheckOutOfRange(i, j))
+
+                    if (IsInBoundaries(i, j) && Cells[i, j].IsAlive)
                     {
-                        count += Convert.ToByte(Cells[i, j].IsAlive);
+	                    count++;
                     }
                 }
             }
-            Cells[x, y].CountNeighbors = count;
-        }
 
-        private bool GetState(int x, int y)
-        {
-            switch (Cells[x, y].CountNeighbors)
-            {
-                case 2:
-                    return Convert.ToBoolean(Cells[x, y].IsAlive);
-                case 3:
-                    return true;
-                default:
-                    return false;
-            }
+            Cells[x, y].SetAliveNeighbors(count);
         }
 
         /// <summary>
         /// Конвертируем из рисунка в массив Cells
         /// </summary>
-        public void SetCellsIntoDrawPanel(int x, int y, byte[,] pattern)
+        public void DrawPatternOnCells(int x, int y, byte[,] pattern)
         {
-            x = x / CellSize;
-            y = y / CellSize;
-            int patternWidth = pattern.GetLength(0);
-            int patternHeight = pattern.GetLength(1);
+            x /= _cellSize;
+            y /= _cellSize;
+            var patternWidth = pattern.GetLength(0);
+            var patternHeight = pattern.GetLength(1);
 
-            if (patternWidth <= Width && patternHeight <= Height)
-            {
-                for (int i = 0; i < patternWidth; i++)
-                {
-                    for (int j = 0; j < patternHeight; j++)
-                    {
-                        if (x + i < Width && y + j < Height)
-                        {
-                            Cells[x + i, y + j].IsAlive = pattern[i, j];
-                        }
-                    }
-                }
-            }
-        }
+			for (int i = 0; i < patternWidth; i++)
+			{
+				for (int j = 0; j < patternHeight; j++)
+				{
+					if (x + i < Width && y + j < Height)
+					{
+						Cells[x + i, y + j].IsAlive = Convert.ToBoolean(pattern[i, j]);
+					}
+				}
+			}
+		}
     }
 }
