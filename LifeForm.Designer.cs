@@ -192,7 +192,7 @@
 			this.randomBtn.Name = "randomBtn";
 			this.randomBtn.Size = new System.Drawing.Size(160, 21);
 			this.randomBtn.TabIndex = 14;
-			this.randomBtn.Text = "RANDOM PATTERN";
+			this.randomBtn.Text = "RANDOM";
 			this.gameToolTip.SetToolTip(this.randomBtn, "Start new game with random pattern");
 			this.randomBtn.UseVisualStyleBackColor = true;
 			this.randomBtn.Click += new System.EventHandler(this.RandomPatternClick);
