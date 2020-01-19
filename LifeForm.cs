@@ -6,7 +6,7 @@ namespace ConwayGameOfLife
 {
 	public partial class LifeForm : Form
 	{
-		private int CountCells { get; set; }
+		private int CellsCount { get; set; }
 
 		private int CellSize { get; } = 5;
 
@@ -49,7 +49,7 @@ namespace ConwayGameOfLife
 
 		private void ClearGrid()
 		{
-			CountCells = 0;
+			CellsCount = 0;
 			LifeBitmap = new Bitmap(gamePanel.Width, gamePanel.Height);
 			BitmapGraphics = Graphics.FromImage(LifeBitmap);
 			BitmapGraphics.Clear(gamePanel.BackColor);
@@ -64,7 +64,7 @@ namespace ConwayGameOfLife
 					if (LifeGrid.Cells[x, y].IsAlive)
 					{
 						BitmapGraphics.FillRectangle(BrushCell, x * CellSize, y * CellSize, CellSize, CellSize);
-						CountCells++;
+						CellsCount++;
 					}
 				}
 			}
@@ -74,7 +74,7 @@ namespace ConwayGameOfLife
 
 		private void NewGameClick(object sender, EventArgs e)
 		{
-			StartGameEnableControls();
+			EnableControlsWhenStartGame();
 			gameTimer.Start();
 			CurrentTimerState = TimerState.On;
 		}
@@ -90,14 +90,14 @@ namespace ConwayGameOfLife
 			LifeGrid.UpdateGridNextStep();
 			UpdateGameStep();
 
-			if (CountCells == 0)
+			if (CellsCount == 0)
 			{
 				ClearGameWhenGameOver();
 				gameTimer.Stop();
 			}
 		}
 
-		private void StartGameEnableControls()
+		private void EnableControlsWhenStartGame()
 		{
 			nextBtn.Enabled = true;
 			pauseBtn.Enabled = true;
@@ -158,7 +158,7 @@ namespace ConwayGameOfLife
 				DrawGrid();
 			}
 
-			popLabel.Text = CountCells.ToString();
+			popLabel.Text = CellsCount.ToString();
 		}
 
 		private void PauseClick(object sender, EventArgs e)
@@ -203,7 +203,7 @@ namespace ConwayGameOfLife
 		private void RandomPatternClick(object sender, EventArgs e)
 		{
 			LifeGrid.SetRandomPatternOnCells();
-			StartGameEnableControls();
+			EnableControlsWhenStartGame();
 			gameTimer.Start();
 			CurrentTimerState = TimerState.On;
 		}
@@ -228,7 +228,7 @@ namespace ConwayGameOfLife
 			ClearGrid();
 			DrawGrid();
 			genLabel.Text = LifeGrid.Generations.ToString();
-			popLabel.Text = CountCells.ToString();
+			popLabel.Text = CellsCount.ToString();
 		}
 	}
 }

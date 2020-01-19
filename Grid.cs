@@ -9,6 +9,8 @@ namespace ConwayGameOfLife
 	/// </summary>
 	class Grid
 	{
+		private readonly Random _random = new Random();
+
 		/// <summary>
 		/// Размер клетки
 		/// </summary>
@@ -22,7 +24,7 @@ namespace ConwayGameOfLife
 		/// <summary>
 		/// Массив клеток
 		/// </summary>
-		public Cell[,] Cells;
+		public Cell[,] Cells { get; private set; }
 
 		/// <summary>
 		/// Счетчик поколения
@@ -70,11 +72,11 @@ namespace ConwayGameOfLife
 		/// </summary>
 		public void UpdateGridPreviousStep()
 		{
-			var index = _history.Count - 1;
-			if (index >= 0)
+			if (_history.Any())
 			{
-				Cells = _history[index];
-				_history.RemoveAt(index);
+				var previousState = _history.Last();
+				Cells = previousState;
+				_history.Remove(previousState);
 				Generations--;
 			}
 		}
@@ -84,12 +86,11 @@ namespace ConwayGameOfLife
 		/// </summary>
 		public void SetRandomPatternOnCells()
 		{
-			var random = new Random();
 			for (int i = 0; i < Cells.GetLength(0); i++)
 			{
 				for (int j = 0; j < Cells.GetLength(1); j++)
 				{
-					var isAlive = Convert.ToBoolean(random.Next(0, 2));
+					var isAlive = Convert.ToBoolean(_random.Next(0, 2));
 					Cells[i, j] = new Cell(isAlive);
 				}
 			}
