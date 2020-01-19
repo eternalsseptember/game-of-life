@@ -84,6 +84,7 @@ namespace ConwayGameOfLife
 			if (LifeGrid.IsGridRepeated())
 			{
 				ClearGameWhenGameOver();
+				gameTimer.Stop();
 				return;
 			}
 
@@ -219,6 +220,7 @@ namespace ConwayGameOfLife
 			DisableControlsWhenGameOver();
 			CurrentTimerState = TimerState.Off;
 			ClearGrid();
+			LifeGrid = new Grid(gamePanel.Width, gamePanel.Height, CellSize);
 			LifeGrid.CreateEmptyCells();
 			DrawGrid();
 		}
