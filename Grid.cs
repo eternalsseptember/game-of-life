@@ -7,17 +7,17 @@ namespace ConwayGameOfLife
 	/// <summary>
 	/// Сетка
 	/// </summary>
-    class Grid
-    {
-	    /// <summary>
-	    /// Размер клетки
-	    /// </summary>
-	    private readonly int _cellSize;
+	class Grid
+	{
+		/// <summary>
+		/// Размер клетки
+		/// </summary>
+		private readonly int _cellSize;
 
-	    /// <summary>
-	    /// История
-	    /// </summary>
-	    private readonly List<Cell[,]> _history;
+		/// <summary>
+		/// История
+		/// </summary>
+		private readonly List<Cell[,]> _history;
 
 		/// <summary>
 		/// Массив клеток
@@ -27,17 +27,17 @@ namespace ConwayGameOfLife
 		/// <summary>
 		/// Счетчик поколения
 		/// </summary>
-        public int Generations { get; private set; }
+		public int Generations { get; private set; }
 
 		/// <summary>
 		/// Ширина сетки
 		/// </summary>
-        public int Width { get; }
+		public int Width { get; }
 
 		/// <summary>
 		/// Высота сетки
 		/// </summary>
-        public int Height { get; }
+		public int Height { get; }
 
 		/// <summary>
 		/// Конструктор
@@ -47,12 +47,12 @@ namespace ConwayGameOfLife
 		/// <param name="cellSize">Размер клетки</param>
 		public Grid(int width, int height, int cellSize)
 		{
-            Cells = new Cell[width / cellSize, height / cellSize];
-            Width = width / cellSize;
-            Height = height / cellSize;
+			Cells = new Cell[width / cellSize, height / cellSize];
+			Width = width / cellSize;
+			Height = height / cellSize;
 
-            _cellSize = cellSize;
-            _history = new List<Cell[,]>();
+			_cellSize = cellSize;
+			_history = new List<Cell[,]>();
 		}
 
 		/// <summary>
@@ -66,72 +66,72 @@ namespace ConwayGameOfLife
 		}
 
 		/// <summary>
-        /// Обновление сетки на 1 шаг назад
-        /// </summary>
-        public void UpdateGridPreviousStep()
-        {
-	        var index = _history.Count - 1;
-	        if (index >= 0)
-	        {
-		        Cells = _history[index];
-		        _history.RemoveAt(index);
-		        Generations--;
-	        }
-        }
+		/// Обновление сетки на 1 шаг назад
+		/// </summary>
+		public void UpdateGridPreviousStep()
+		{
+			var index = _history.Count - 1;
+			if (index >= 0)
+			{
+				Cells = _history[index];
+				_history.RemoveAt(index);
+				Generations--;
+			}
+		}
 
-        /// <summary>
-        /// Заполнение массива клеток случайными значениями
-        /// </summary>
-        public void SetRandomPatternOnCells()
-        {
-            var random = new Random();
-            for (int i = 0; i < Cells.GetLength(0); i++)
-            {
-                for (int j = 0; j < Cells.GetLength(1); j++)
-                {
-                    var isAlive = Convert.ToBoolean(random.Next(0, 2));
-                    Cells[i, j] = new Cell(isAlive);
-                }
-            }
-        }
+		/// <summary>
+		/// Заполнение массива клеток случайными значениями
+		/// </summary>
+		public void SetRandomPatternOnCells()
+		{
+			var random = new Random();
+			for (int i = 0; i < Cells.GetLength(0); i++)
+			{
+				for (int j = 0; j < Cells.GetLength(1); j++)
+				{
+					var isAlive = Convert.ToBoolean(random.Next(0, 2));
+					Cells[i, j] = new Cell(isAlive);
+				}
+			}
+		}
 
-        /// <summary>
-        /// Создание массива клеток заполненного нулями
-        /// </summary>
-        public void CreateEmptyCells()
-        {
-            for (int i = 0; i < Width; i++)
-            {
-                for (int j = 0; j < Height; j++)
-                {
-                    Cells[i, j] = new Cell(false);
-                }
-            }
-        }
+		/// <summary>
+		/// Создание массива клеток заполненного нулями
+		/// </summary>
+		public void CreateEmptyCells()
+		{
+			for (int i = 0; i < Width; i++)
+			{
+				for (int j = 0; j < Height; j++)
+				{
+					Cells[i, j] = new Cell(false);
+				}
+			}
+		}
 
-        /// <summary>
-        /// Конвертация из рисунка в массив Cells
-        /// </summary>
-        public void DrawPatternOnCells(int x, int y, byte[,] pattern)
-        {
-	        x /= _cellSize;
-	        y /= _cellSize;
-	        var patternWidth = pattern.GetLength(0);
-	        var patternHeight = pattern.GetLength(1);
+		/// <summary>
+		/// Конвертация из рисунка в массив Cells
+		/// </summary>
+		public void DrawPatternOnCells(int x, int y, byte[,] pattern)
+		{
+			x /= _cellSize;
+			y /= _cellSize;
+			var patternWidth = pattern.GetLength(0);
+			var patternHeight = pattern.GetLength(1);
 
-	        for (int i = 0; i < patternWidth; i++)
-	        {
-		        for (int j = 0; j < patternHeight; j++)
-		        {
-			        if (x + i < Width && y + j < Height)
-			        {
-				        Cells[x + i, y + j].IsAlive = Convert.ToBoolean(pattern[i, j]);
-			        }
-		        }
-	        }
-        }
+			for (int i = 0; i < patternWidth; i++)
+			{
+				for (int j = 0; j < patternHeight; j++)
+				{
+					if (x + i < Width && y + j < Height)
+					{
+						Cells[x + i, y + j].IsAlive = Convert.ToBoolean(pattern[i, j]);
+					}
+				}
+			}
+		}
 
-        /// <summary>
+		/// <summary>
 		/// Проверка на повторение массива клеток за игру (периодическая конфигурация)
 		/// </summary>
 		/// <returns>Возвращает true, если сложилась периодическая конфигурация</returns>
@@ -156,6 +156,7 @@ namespace ConwayGameOfLife
 					}
 				}
 			}
+
 			return true;
 		}
 
@@ -172,6 +173,7 @@ namespace ConwayGameOfLife
 					copiedCells[i, j] = new Cell(cells[i, j].IsAlive);
 				}
 			}
+
 			return copiedCells;
 		}
 
