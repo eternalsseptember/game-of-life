@@ -1,27 +1,49 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ConwayGameOfLife
 {
+	/// <summary>
+	/// Сетка
+	/// </summary>
     class Grid
     {
-        public Cell[,] Cells;
+	    /// <summary>
+	    /// Размер клетки
+	    /// </summary>
+	    private readonly int _cellSize;
 
-        public int Generations { get; private set; }
-
-        public int Width { get; }
-
-        public int Height { get; }
-
-        private readonly int _cellSize;
-
-		private readonly List<Cell[,]> _history;
+	    /// <summary>
+	    /// История
+	    /// </summary>
+	    private readonly List<Cell[,]> _history;
 
 		/// <summary>
-		/// Конструктор 
+		/// Массив клеток
 		/// </summary>
-		/// <param name="width">Ширина 'сетки'</param>
-		/// <param name="height">Высота 'сетки'</param>
+		public Cell[,] Cells;
+
+		/// <summary>
+		/// Счетчик поколения
+		/// </summary>
+        public int Generations { get; private set; }
+
+		/// <summary>
+		/// Ширина сетки
+		/// </summary>
+        public int Width { get; }
+
+		/// <summary>
+		/// Высота сетки
+		/// </summary>
+        public int Height { get; }
+
+		/// <summary>
+		/// Конструктор
+		/// </summary>
+		/// <param name="width">Ширина сетки</param>
+		/// <param name="height">Высота сетки</param>
 		/// <param name="cellSize">Размер клетки</param>
 		public Grid(int width, int height, int cellSize)
 		{
@@ -33,118 +55,50 @@ namespace ConwayGameOfLife
             _history = new List<Cell[,]>();
 		}
 
-        /// <summary>
-        /// Обновление сетки на 1 шаг вперёд
-        /// </summary>
-        public bool NextStepGridUpdate()
-        {
-	        if (IsGridRepeated())
-	        {
-		        return false;
-			}
-
+		/// <summary>
+		/// Обновление сетки на 1 шаг вперёд
+		/// </summary>
+		public void UpdateGridNextStep()
+		{
 			_history.Add(CopyCells(Cells));
+			UpdateNextStepCells();
+			Generations++;
+		}
 
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    UpdateNeighbors(x, y);
-                }
-            }
-
-            for (int x = 0; x < Width; x++)
-            {
-                for (int y = 0; y < Height; y++)
-                {
-                    Cells[x, y].UpdateState();
-                }
-            }
-            Generations++;
-            return true;
-        }
-
-        private bool IsGridRepeated()
+		/// <summary>
+        /// Обновление сетки на 1 шаг назад
+        /// </summary>
+        public void UpdateGridPreviousStep()
         {
-	        foreach (var h in _history)
+	        var index = _history.Count - 1;
+	        if (index >= 0)
 	        {
-		        if (CellGridEquals(h, Cells))
-		        {
-			        return true;
-		        }
+		        Cells = _history[index];
+		        _history.RemoveAt(index);
+		        Generations--;
 	        }
-
-	        return false;
         }
 
         /// <summary>
-        /// Сравнение двух массивов клеток
+        /// Заполнение массива клеток случайными значениями
         /// </summary>
-        public bool CellGridEquals(Cell[,] cells1, Cell[,] cells2)
+        public void SetRandomPatternOnCells()
         {
-            for (int i = 0; i < Width; i++)
-            {
-                for (int j = 0; j < Height; j++)
-                {
-	                if (cells1[i, j].IsAlive != cells2[i, j].IsAlive)
-	                {
-		                return false;
-					}
-				}
-            }
-            return true;
-        }
-
-        /// <summary>
-        /// Создание копии сетки
-        /// </summary>
-        private Cell[,] CopyCells(Cell[,] cells)
-        {
-            var copiedCells = new Cell[Width, Height];
-            for (int i = 0; i < Width; i++)
-            {
-                for (int j = 0; j < Height; j++)
-                {
-                    copiedCells[i, j] = new Cell(cells[i, j].IsAlive);
-                }
-            }
-            return copiedCells;
-        }
-
-        /// <summary>
-        /// Обновление 'сетки' на 1 шаг назад
-        /// </summary>
-        public void PrevStepGridUpdate()
-        {
-            int i = _history.Count - 1;
-            if (i >= 0)
-            {
-                Cells = _history[i];
-                _history.RemoveAt(i);
-                Generations--;
-            }
-        }
-
-        /// <summary>
-        /// Рандомно заполняем сетку
-        /// </summary>
-        public void RandomPatternGrid()
-        {
-            var rnd = new Random();
+            var random = new Random();
             for (int i = 0; i < Cells.GetLength(0); i++)
             {
                 for (int j = 0; j < Cells.GetLength(1); j++)
                 {
-                    var isAlive = Convert.ToBoolean(rnd.Next(0, 2));
+                    var isAlive = Convert.ToBoolean(random.Next(0, 2));
                     Cells[i, j] = new Cell(isAlive);
                 }
             }
         }
 
         /// <summary>
-        /// Создает сетку полностью заполненную нулями
+        /// Создание массива клеток заполненного нулями
         /// </summary>
-        public void CreateEmptyGrid()
+        public void CreateEmptyCells()
         {
             for (int i = 0; i < Width; i++)
             {
@@ -156,59 +110,124 @@ namespace ConwayGameOfLife
         }
 
         /// <summary>
-        /// Проверка на то, что индекс внутри массива
-        /// </summary>
-        private bool IsInBoundaries(int x, int y)
-        {
-	        return y < Height && x < Width && x >= 0 && y >= 0;
-        }
-
-        /// <summary>
-        /// Подсчет живых соседей у клетки и запись количества
-        /// соседей в свойство CountNeighbors
-        /// </summary>
-        private void UpdateNeighbors(int x, int y)
-        {
-            var count = 0;
-            for (int i = x - 1; i < x + 2; i++)
-            {
-                for (int j = y - 1; j < y + 2; j++)
-                {
-                    if (i == x && j == y)
-                    {
-                        continue;
-                    }
-
-                    if (IsInBoundaries(i, j) && Cells[i, j].IsAlive)
-                    {
-	                    count++;
-                    }
-                }
-            }
-
-            Cells[x, y].SetAliveNeighbors(count);
-        }
-
-        /// <summary>
-        /// Конвертируем из рисунка в массив Cells
+        /// Конвертация из рисунка в массив Cells
         /// </summary>
         public void DrawPatternOnCells(int x, int y, byte[,] pattern)
         {
-            x /= _cellSize;
-            y /= _cellSize;
-            var patternWidth = pattern.GetLength(0);
-            var patternHeight = pattern.GetLength(1);
+	        x /= _cellSize;
+	        y /= _cellSize;
+	        var patternWidth = pattern.GetLength(0);
+	        var patternHeight = pattern.GetLength(1);
 
-			for (int i = 0; i < patternWidth; i++)
+	        for (int i = 0; i < patternWidth; i++)
+	        {
+		        for (int j = 0; j < patternHeight; j++)
+		        {
+			        if (x + i < Width && y + j < Height)
+			        {
+				        Cells[x + i, y + j].IsAlive = Convert.ToBoolean(pattern[i, j]);
+			        }
+		        }
+	        }
+        }
+
+        /// <summary>
+		/// Проверка на повторение массива клеток за игру (периодическая конфигурация)
+		/// </summary>
+		/// <returns>Возвращает true, если сложилась периодическая конфигурация</returns>
+		public bool IsGridRepeated()
+		{
+			return _history.Any(h => CellsEquals(h, Cells));
+		}
+
+		/// <summary>
+		/// Сравнение двух массивов клеток
+		/// </summary>
+		/// <returns>Возвращает true, если массивы клеток равны</returns>
+		private bool CellsEquals(Cell[,] cells1, Cell[,] cells2)
+		{
+			for (int i = 0; i < Width; i++)
 			{
-				for (int j = 0; j < patternHeight; j++)
+				for (int j = 0; j < Height; j++)
 				{
-					if (x + i < Width && y + j < Height)
+					if (cells1[i, j].IsAlive != cells2[i, j].IsAlive)
 					{
-						Cells[x + i, y + j].IsAlive = Convert.ToBoolean(pattern[i, j]);
+						return false;
 					}
 				}
 			}
+			return true;
 		}
-    }
+
+		/// <summary>
+		/// Создание копии массива клеток
+		/// </summary>
+		private Cell[,] CopyCells(Cell[,] cells)
+		{
+			var copiedCells = new Cell[Width, Height];
+			for (int i = 0; i < Width; i++)
+			{
+				for (int j = 0; j < Height; j++)
+				{
+					copiedCells[i, j] = new Cell(cells[i, j].IsAlive);
+				}
+			}
+			return copiedCells;
+		}
+
+		/// <summary>
+		/// Обновление живых соседей у клетки
+		/// </summary>
+		private void UpdateNeighbors(int x, int y)
+		{
+			var count = 0;
+			for (int i = x - 1; i < x + 2; i++)
+			{
+				for (int j = y - 1; j < y + 2; j++)
+				{
+					if (i == x && j == y)
+					{
+						continue;
+					}
+
+					if (IsInBoundaries(i, j) && Cells[i, j].IsAlive)
+					{
+						count++;
+					}
+				}
+			}
+
+			Cells[x, y].SetAliveNeighbors(count);
+		}
+
+		/// <summary>
+		/// Проверка на то, что индекс внутри массива
+		/// </summary>
+		private bool IsInBoundaries(int x, int y)
+		{
+			return y < Height && x < Width && x >= 0 && y >= 0;
+		}
+
+		/// <summary>
+		/// Обновление массива клеток на 1 шаг вперёд
+		/// </summary>
+		private void UpdateNextStepCells()
+		{
+			for (int x = 0; x < Width; x++)
+			{
+				for (int y = 0; y < Height; y++)
+				{
+					UpdateNeighbors(x, y);
+				}
+			}
+
+			for (int x = 0; x < Width; x++)
+			{
+				for (int y = 0; y < Height; y++)
+				{
+					Cells[x, y].UpdateState();
+				}
+			}
+		}
+	}
 }

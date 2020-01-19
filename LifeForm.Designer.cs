@@ -215,7 +215,7 @@
 			this.prevBtn.TabIndex = 15;
 			this.gameToolTip.SetToolTip(this.prevBtn, "Previous one step");
 			this.prevBtn.UseVisualStyleBackColor = true;
-			this.prevBtn.Click += new System.EventHandler(this.PrevStepBtnClick);
+			this.prevBtn.Click += new System.EventHandler(this.PreviousStepBtnClick);
 			// 
 			// LifeForm
 			// 
